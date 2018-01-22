@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
-#include "../libuv/include/uv.h"
+#include "uv.h"
+#include "task.h"
 
 #define ERROR(msg, code) do {                                                         \
   fprintf(stderr, "%s: [%s: %s]\n", msg, uv_err_name((code)), uv_strerror((code)));   \
@@ -76,10 +77,11 @@ void close_cb(uv_fs_t *req) {
 }
 
 int main() {
-  const char *filename = "main.c";
+  const char *filename = "main.cpp";
 
   uv_fs_open(uv_default_loop(), &open_req, filename, O_RDONLY, S_IRUSR, open_cb);
 
   uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+  system("pause");
   return 0;
 }

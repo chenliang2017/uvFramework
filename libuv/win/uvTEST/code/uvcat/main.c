@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <uv.h>
 
 void on_read(uv_fs_t *req);
@@ -53,11 +52,13 @@ void on_open(uv_fs_t *req) {
 }
 
 int main(int argc, char **argv) {
-    uv_fs_open(uv_default_loop(), &open_req, argv[1], O_RDONLY, 0, on_open);
+    uv_fs_open(uv_default_loop(), &open_req, "main.cpp", O_RDONLY, 0, on_open);
     uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
     uv_fs_req_cleanup(&open_req);
     uv_fs_req_cleanup(&read_req);
     uv_fs_req_cleanup(&write_req);
+
+	system("pause");
     return 0;
 }

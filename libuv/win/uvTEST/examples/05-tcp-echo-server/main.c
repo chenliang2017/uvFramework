@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../libuv/include/uv.h"
+#include "uv.h"
 
 #define ERROR(msg, code) do {                                                         \
   fprintf(stderr, "%s: [%s: %s]\n", msg, uv_err_name((code)), uv_strerror((code)));   \
@@ -44,7 +44,7 @@ void alloc_cb(uv_handle_t *handle, size_t size, uv_buf_t *buf) {
 }
 
 void read_cb(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf) {
-  if (nread == UV_EOF) {
+  if (nread == UV__EOF) {
     // XXX: this is actually a bug, since client writes could back up (see ./test-client.sh) and therefore
     // some chunks to be written be left in the pipe.
     // Closing in that case results in: [ECANCELED: operation canceled]
@@ -92,7 +92,7 @@ int main() {
   struct sockaddr_in bind_addr;
   int r = uv_ip4_addr("0.0.0.0", 7000, &bind_addr);
   assert(!r);
-  uv_tcp_bind(&server, (struct sockaddr*)&bind_addr);
+  uv_tcp_bind(&server, (struct sockaddr*)&bind_addr, 0);
 
   r = uv_listen((uv_stream_t*) &server, 128 /*backlog*/, connection_cb);
   if (r) ERROR("listen error", r)
