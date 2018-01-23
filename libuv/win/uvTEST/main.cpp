@@ -52,17 +52,30 @@ void echo_read(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf) {
 	free(buf->base);
 }
 
+void accept_func(uv_work_t *req) {
+	uv_tcp_t *client = (uv_tcp_t *)(req->data);
+	uv_read_start((uv_stream_t*)client, alloc_buffer, echo_read);
+	printf("accept_func\n");
+}
+
+void after_accept_func(uv_work_t *req, int status) {
+	printf("Done after_accept_func\n");
+}
+
 void on_new_connection(uv_stream_t *server, int status) {
 	if (status < 0) {
-		fprintf(stderr, "New connection error %s\n", uv_strerror(status));
-		// error!
+		printf("New connection error %s\n", uv_strerror(status));
 		return;
 	}
+	printf("new connection arrive\n");
 
 	uv_tcp_t *client = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
 	uv_tcp_init(loop, client);
 	if (uv_accept(server, (uv_stream_t*)client) == 0) {
-		uv_read_start((uv_stream_t*)client, alloc_buffer, echo_read);
+		uv_work_t *req = (uv_work_t*)malloc(sizeof(uv_work_t));;
+		req->data = (void*)client;
+		uv_queue_work(loop, req, accept_func, after_accept_func);
+		//uv_read_start((uv_stream_t*)client, alloc_buffer, echo_read);
 	}
 	else {
 		uv_close((uv_handle_t*)client, on_close);
@@ -80,7 +93,7 @@ int main() {
 	uv_tcp_bind(&server, (const struct sockaddr*)&addr, 0);
 	int r = uv_listen((uv_stream_t*)&server, DEFAULT_BACKLOG, on_new_connection);
 	if (r) {
-		fprintf(stderr, "Listen error %s\n", uv_strerror(r));
+		printf("Listen error %s\n", uv_strerror(r));
 		return 1;
 	}
 	return uv_run(loop, UV_RUN_DEFAULT);
