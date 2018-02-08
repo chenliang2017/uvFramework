@@ -3,9 +3,7 @@
 #include <string.h>
 #include <uv.h>
 
-#include "iLog.h"
-
-#define DEFAULT_PORT 8000
+#define DEFAULT_PORT 7000
 #define DEFAULT_BACKLOG 128
 
 uv_loop_t *loop;
@@ -20,13 +18,11 @@ void free_write_req(uv_write_t *req) {
 	write_req_t *wr = (write_req_t*)req;
 	free(wr->buf.base);
 	free(wr);
-	iLogInfo("free write req");
 }
 
 void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf) {
 	buf->base = (char*)malloc(suggested_size);
 	buf->len = suggested_size;
-	iLogInfo("alloc buffer");
 }
 
 void on_close(uv_handle_t* handle) {
@@ -34,7 +30,6 @@ void on_close(uv_handle_t* handle) {
 }
 
 void echo_write(uv_write_t *req, int status) {
-	iLogInfo("echo write.");
 	if (status) {
 		fprintf(stderr, "Write error %s\n", uv_strerror(status));
 	}
@@ -42,7 +37,6 @@ void echo_write(uv_write_t *req, int status) {
 }
 
 void echo_read(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf) {
-	iLogInfo("echo read.");
 	if (nread > 0) {
 		write_req_t *req = (write_req_t*)malloc(sizeof(write_req_t));
 		req->buf = uv_buf_init(buf->base, nread);
@@ -61,11 +55,11 @@ void echo_read(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf) {
 void accept_func(uv_work_t *req) {
 	uv_tcp_t *client = (uv_tcp_t *)(req->data);
 	uv_read_start((uv_stream_t*)client, alloc_buffer, echo_read);
-	iLogInfo("accept_func\n");
+	printf("accept_func\n");
 }
 
 void after_accept_func(uv_work_t *req, int status) {
-	iLogInfo("Done after_accept_func\n");
+	printf("Done after_accept_func\n");
 }
 
 void on_new_connection(uv_stream_t *server, int status) {
@@ -73,22 +67,11 @@ void on_new_connection(uv_stream_t *server, int status) {
 		printf("New connection error %s\n", uv_strerror(status));
 		return;
 	}
-	iLogInfo("new connection arrive\n");
+	printf("new connection arrive\n");
 
 	uv_tcp_t *client = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
 	uv_tcp_init(loop, client);
 	if (uv_accept(server, (uv_stream_t*)client) == 0) {
-
-		char ip[32] = { 0 };
-		struct sockaddr sockname;
-		int namelen = sizeof(sockname);
-		uv_tcp_getpeername(client, &sockname, &namelen);
-
-
-		struct sockaddr_in check_addr = *(struct sockaddr_in*)(&sockname);
-		uv_ip4_name(&check_addr, ip, 32);
-		printf("ip:%s\n", ip);
-
 		uv_work_t *req = (uv_work_t*)malloc(sizeof(uv_work_t));;
 		req->data = (void*)client;
 		uv_queue_work(loop, req, accept_func, after_accept_func);
@@ -100,19 +83,6 @@ void on_new_connection(uv_stream_t *server, int status) {
 }
 
 int main() {
-
-	log_handle_t *log = NULL;
-	log = LogInit();
-	if (log == NULL) {
-		printf(">># create iLog handle errno, errno number: %d.\n", errno);
-		return -1;
-	}
-	else {
-		LogThreshold(ILOG_TYPE_DEBUG);
-		LogSetPath("test.log");
-	}
-
-
 	loop = uv_default_loop();
 
 	uv_tcp_t server;
@@ -126,9 +96,5 @@ int main() {
 		printf("Listen error %s\n", uv_strerror(r));
 		return 1;
 	}
-	uv_run(loop, UV_RUN_DEFAULT);
-
-	printf("after uv_run\n");
-
-	return 0;
+	return uv_run(loop, UV_RUN_DEFAULT);
 }
