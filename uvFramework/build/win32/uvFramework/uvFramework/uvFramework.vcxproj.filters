@@ -27,9 +27,6 @@
     <ClCompile Include="..\..\..\..\src\MessageThread.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\TcpSend.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\iLog.h">
@@ -42,9 +39,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\MessageThread.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\TcpSend.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

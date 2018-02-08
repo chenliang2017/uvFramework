@@ -87,14 +87,12 @@
     <ClCompile Include="..\..\..\..\src\iLog.cpp" />
     <ClCompile Include="..\..\..\..\src\MessageHandle.cpp" />
     <ClCompile Include="..\..\..\..\src\MessageThread.cpp" />
-    <ClCompile Include="..\..\..\..\src\TcpSend.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\Atomic.h" />
     <ClInclude Include="..\..\..\..\include\iLog.h" />
     <ClInclude Include="..\..\..\..\include\MessageHandle.h" />
     <ClInclude Include="..\..\..\..\include\MessageThread.h" />
-    <ClInclude Include="..\..\..\..\include\TcpSend.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
